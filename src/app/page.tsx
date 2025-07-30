@@ -1,103 +1,72 @@
-import Image from "next/image";
+'use client'
+
+import { useState } from 'react';
+import Link from 'next/link';
+import WeatherScape from '@/components/weather-scape';
+import WeatherController from '@/components/weather-controller';
+import { useWeatherAndTime } from '@/hooks/use-weather-and-time';
+import { Button } from '@/components/ui/button';
+import { Eye, EyeOff, Moon, CloudSun } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { reset, isOverridden, moonPhase, ...weatherAndTime } = useWeatherAndTime();
+  const [isUiVisible, setIsUiVisible] = useState(true);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <>
+      <WeatherScape {...weatherAndTime} moonPhase={moonPhase} />
+      <main className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-8 text-center">
+        <div
+          className={cn(
+            'bg-background/30 dark:bg-background/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-2xl border border-white/10 w-full max-w-lg transition-all duration-500',
+            isUiVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+          )}
+        >
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground font-headline">
+            WeatherScape
+          </h1>
+          <p className="mt-4 text-md md:text-lg text-foreground/80">
+            A dynamic theme that adapts to real-time local conditions.
+          </p>
+          <div className="mt-8 w-full max-w-md mx-auto space-y-4">
+            <WeatherController {...weatherAndTime} setWeather={weatherAndTime.setWeather} setTimeOfDay={weatherAndTime.setTimeOfDay} />
+            {isOverridden && (
+              <Button onClick={reset} variant="ghost" size="sm">
+                Return to Real-Time
+              </Button>
+            )}
+          </div>
+          {!weatherAndTime.isDay && moonPhase && (
+            <div className="mt-4 flex items-center justify-center gap-2 text-foreground/80">
+              <Moon className="w-4 h-4" />
+              <span>{moonPhase.phaseName}</span>
+            </div>
+          )}
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      <div className="fixed bottom-4 right-4 z-20 flex gap-2">
+        <Button
+          onClick={() => setIsUiVisible(!isUiVisible)}
+          variant="ghost"
+          size="icon"
+          className="text-foreground bg-background/30 hover:bg-background/50"
+          aria-label={isUiVisible ? 'Hide UI' : 'Show UI'}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          {isUiVisible ? <EyeOff /> : <Eye />}
+        </Button>
+        <Button
+          asChild
+          variant="ghost"
+          size="icon"
+          className="text-foreground bg-background/30 hover:bg-background/50"
+          aria-label="View Forecast"
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <Link href="/forecast">
+            <CloudSun />
+          </Link>
+        </Button>
+      </div>
+    </>
   );
 }
