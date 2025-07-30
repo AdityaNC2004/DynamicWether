@@ -14,8 +14,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function ForecastPage() {
-  const { moonPhase, ...weatherAndTime } = useWeatherAndTime();
   const { data: forecast, isLoading: isForecastLoading, error, location, setLocation } = useForecast();
+  const { moonPhase, ...weatherAndTime } = useWeatherAndTime(forecast?.current.condition);
   const [summary, setSummary] = useState('');
   const [isSummaryLoading, setIsSummaryLoading] = useState(true);
 
