@@ -31,18 +31,22 @@ export interface Forecast {
   }[];
 }
 
-interface Location {
+export interface Location {
   latitude: number;
   longitude: number;
 }
 
 const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
 
-export const useForecast = () => {
+export const useForecast = (location?: Location | null) => {
   const [forecast, setForecast] = useState<Forecast | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [location, setLocation] = useState<Location | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loc, setLoc] = useState<Location | null>(null);
+
+  const setLocation = useCallback((location: Location | null) => {
+    setLoc(location)
+  }, []);
 
   const fetchForecast = useCallback(async (lat: number, lon: number) => {
     if (!API_KEY) {
@@ -100,15 +104,16 @@ export const useForecast = () => {
   }, []);
 
   useEffect(() => {
-    if (location) {
-      fetchForecast(location.latitude, location.longitude);
+    const targetLocation = location || loc;
+    if (targetLocation) {
+      fetchForecast(targetLocation.latitude, targetLocation.longitude);
     } else {
         // Keep loading until location is set
         setIsLoading(true);
     }
-  }, [location, fetchForecast]);
+  }, [location, loc, fetchForecast]);
 
-  return { data: forecast, isLoading, error, location, setLocation };
+  return { data: forecast, isLoading, error, location: loc, setLocation };
 };
 
 export type UseForecastReturn = ReturnType<typeof useForecast>;

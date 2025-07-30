@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-export type WeatherCondition = 'Clear' | 'Rainy' | 'Stormy' | 'Snowy' | 'Foggy' | 'Cloudy' | 'Partly Cloudy';
+export type WeatherCondition = 'Clear' | 'Rainy' | 'Stormy' | 'Snowy' | 'Foggy' | 'Cloudy' | 'Partly Cloudy' | 'Sunny' | string;
 export type TimeOfDay = 'Morning' | 'Noon' | 'Evening' | 'Night';
 
 const skyThemes = {
@@ -26,7 +26,6 @@ const getRotationForTime = (date: Date): number => {
   const minutes = date.getMinutes();
   const totalMinutes = hours * 60 + minutes;
 
-  // Sunrise at 6 AM, Sunset at 7 PM
   const dayStart = 6 * 60;
   const dayEnd = 19 * 60;
   const nightStart = dayEnd;
@@ -34,21 +33,17 @@ const getRotationForTime = (date: Date): number => {
 
   let progress;
   if (totalMinutes >= dayStart && totalMinutes < dayEnd) {
-    // Daytime: Sun path from -90deg (sunrise) to 90deg (sunset)
     progress = (totalMinutes - dayStart) / (dayEnd - dayStart);
     return progress * 180 - 90;
   } else {
-    // Nighttime: Moon path from -90deg (moonrise) to 90deg (moonset)
     let totalNightMinutes = totalMinutes >= nightStart ? totalMinutes : totalMinutes + 24 * 60;
     progress = (totalNightMinutes - nightStart) / (nightEnd - nightStart);
     return progress * 180 - 90;
   }
 };
 
-// Simplified moon phase calculation
 const getMoonPhase = (date: Date) => {
     const synodicMonth = 29.53058867;
-    // Known new moon: 2000-01-06
     const knownNewMoon = new Date('2000-01-06T18:14:00Z').getTime();
     const daysSinceKnownNewMoon = (date.getTime() - knownNewMoon) / (1000 * 60 * 60 * 24);
     const phase = (daysSinceKnownNewMoon % synodicMonth) / synodicMonth;
@@ -67,15 +62,15 @@ const getMoonPhase = (date: Date) => {
 
     const currentPhaseInfo = phases.find(p => phase >= p.start && phase < p.end) || phases[0];
 
-    const r = 50; // radius of the moon
-    const x = 50; // center x
-    const y = 50; // center y
+    const r = 50;
+    const x = 50;
+    const y = 50;
     let path;
 
-    if (phase < 0.5) { // Waxing
+    if (phase < 0.5) {
         const a = 2 * r * (0.5 - phase);
         path = `M${x},${y-r} A${a},${r} 0 1,0 ${x},${y+r} A${r},${r} 0 1,1 ${x},${y-r}Z`;
-    } else { // Waning
+    } else {
         const a = 2 * r * (phase - 0.5);
         path = `M${x},${y-r} A${r},${r} 0 1,1 ${x},${y+r} A${a},${r} 0 1,0 ${x},${y-r}Z`;
     }
@@ -87,7 +82,21 @@ const getMoonPhase = (date: Date) => {
     };
 };
 
-export const useWeatherAndTime = () => {
+const mapWeatherCondition = (condition: string): WeatherCondition => {
+    const lowerCaseCondition = condition.toLowerCase();
+    if (lowerCaseCondition.includes('rain') || lowerCaseCondition.includes('drizzle')) return 'Rainy';
+    if (lowerCaseCondition.includes('storm') || lowerCaseCondition.includes('thunder')) return 'Stormy';
+    if (lowerCaseCondition.includes('snow') || lowerCaseCondition.includes('sleet') || lowerCaseCondition.includes('blizzard')) return 'Snowy';
+    if (lowerCaseCondition.includes('fog') || lowerCaseCondition.includes('mist')) return 'Foggy';
+    if (lowerCaseCondition.includes('cloudy') || lowerCaseCondition.includes('overcast')) return 'Cloudy';
+    if (lowerCaseCondition.includes('partly cloudy') || lowerCaseCondition.includes('partly clear')) return 'Partly Cloudy';
+    if (lowerCaseCondition.includes('sunny')) return 'Sunny';
+    if (lowerCaseCondition.includes('clear')) return 'Clear';
+    return 'Clear';
+};
+
+
+export const useWeatherAndTime = (liveWeatherCondition?: string) => {
   const [weather, setWeatherState] = useState<WeatherCondition>('Clear');
   const [timeOfDay, setTimeOfDayState] = useState<TimeOfDay>('Noon');
   const [isOverridden, setIsOverridden] = useState(false);
@@ -115,8 +124,10 @@ export const useWeatherAndTime = () => {
     const now = new Date();
     setCurrentDate(now);
     setTimeOfDayState(getTimeOfDay(now));
-    setWeatherState('Clear'); // Default to clear after reset
-  }, []);
+    if (liveWeatherCondition) {
+      setWeatherState(mapWeatherCondition(liveWeatherCondition));
+    }
+  }, [liveWeatherCondition]);
 
 
   useEffect(() => {
@@ -129,6 +140,8 @@ export const useWeatherAndTime = () => {
       setWeatherState(weatherOverride);
       setTimeOfDayState(timeOverride);
       setIsOverridden(true);
+    } else if (liveWeatherCondition) {
+      setWeatherState(mapWeatherCondition(liveWeatherCondition));
     }
 
     setCurrentDate(now);
@@ -148,10 +161,14 @@ export const useWeatherAndTime = () => {
     }, 60000);
 
     return () => clearInterval(interval);
-  }, [isOverridden]);
+  }, [isOverridden, liveWeatherCondition]);
 
   const isDay = timeOfDay !== 'Night';
   const theme = skyThemes[timeOfDay];
+
+  let displayWeather = weather;
+  if(weather === 'Sunny' && !isDay) displayWeather = 'Clear';
+  if(weather === 'Clear' && isDay) displayWeather = 'Sunny';
 
   const skyStyle = {
     background: theme.gradient,
@@ -162,9 +179,9 @@ export const useWeatherAndTime = () => {
     boxShadow: isDay ? theme.sunShadow : theme.moonShadow,
     rotateDeg: currentDate ? getRotationForTime(currentDate) : 0
   };
-  
+
   return {
-    weather,
+    weather: displayWeather,
     setWeather,
     timeOfDay,
     setTimeOfDay,
