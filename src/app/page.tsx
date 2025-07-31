@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useEffect } from 'react';
@@ -37,17 +38,17 @@ export default function Home() {
   return (
     <>
       <WeatherScape {...weatherAndTime} moonPhase={moonPhase} />
-      <main className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-8 text-center">
+      <main className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 text-center">
         <div
           className={cn(
             'bg-background/30 dark:bg-background/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-2xl border border-white/10 w-full max-w-lg transition-all duration-500',
             isUiVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
           )}
         >
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground font-headline">
+          <h1 className="text-5xl sm:text-6xl font-bold text-foreground font-headline">
             WeatherScape
           </h1>
-          <p className="mt-4 text-md md:text-lg text-foreground/80">
+          <p className="mt-4 text-md sm:text-lg text-foreground/80">
             A dynamic theme that adapts to real-time local conditions.
           </p>
           <div className="mt-8 w-full max-w-md mx-auto space-y-4">
@@ -59,7 +60,7 @@ export default function Home() {
             )}
           </div>
           {!weatherAndTime.isDay && moonPhase && (
-            <div className="mt-4 flex items-center justify-center gap-2 text-foreground/80">
+            <div className="mt-4 flex items-center justify-center gap-2 text-foreground/80 text-sm">
               <Moon className="w-4 h-4" />
               <span>{moonPhase.phaseName}</span>
             </div>

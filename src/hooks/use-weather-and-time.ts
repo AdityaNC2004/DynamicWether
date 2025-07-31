@@ -7,10 +7,30 @@ export type WeatherCondition = 'Clear' | 'Rainy' | 'Stormy' | 'Snowy' | 'Foggy' 
 export type TimeOfDay = 'Morning' | 'Noon' | 'Evening' | 'Night';
 
 const skyThemes = {
-  Morning: { gradient: 'linear-gradient(to top, #FFDAB9, #87CEEB)', sunColor: '#FFD700', sunShadow: '0 0 40px #FFD700' },
-  Noon: { gradient: 'linear-gradient(to bottom, #87CEEB, #A0C4FF)', sunColor: '#FFFFFF', sunShadow: '0 0 50px #FFFFFF' },
-  Evening: { gradient: 'linear-gradient(to bottom, #4682B4, #FF6347)', sunColor: '#FFA500', sunShadow: '0 0 40px #FFA500' },
-  Night: { gradient: 'linear-gradient(to bottom, #1E232F, #000033)', moonColor: '#FFECB3', moonShadow: '0 0 30px #FFECB3' },
+  Morning: {
+    gradient: 'linear-gradient(to top, #FFDAB9, #87CEEB)',
+    sunColor: '#FFD700',
+    sunShadow: '0 0 40px #FFD700',
+    rainGradient: 'linear-gradient(to bottom, #6c757d, #adb5bd)',
+    stormGradient: 'linear-gradient(to bottom, #343a40, #6c757d)',
+  },
+  Noon: {
+    gradient: 'linear-gradient(to bottom, #87CEEB, #A0C4FF)',
+    sunColor: '#FFFFFF',
+    sunShadow: '0 0 50px #FFFFFF',
+    rainGradient: 'linear-gradient(to bottom, #778da9, #adb5bd)',
+    stormGradient: 'linear-gradient(to bottom, #495057, #6c757d)',
+  },
+  Evening: {
+    gradient: 'linear-gradient(to bottom, #4682B4, #FF6347)',
+    sunColor: '#FFA500',
+    sunShadow: '0 0 40px #FFA500'
+  },
+  Night: {
+    gradient: 'linear-gradient(to bottom, #1E232F, #000033)',
+    moonColor: '#FFECB3',
+    moonShadow: '0 0 30px #FFECB3'
+  },
 };
 
 const getTimeOfDay = (date: Date): TimeOfDay => {
@@ -170,8 +190,17 @@ export const useWeatherAndTime = (liveWeatherCondition?: string) => {
   if(weather === 'Sunny' && !isDay) displayWeather = 'Clear';
   if(weather === 'Clear' && isDay) displayWeather = 'Sunny';
 
+  let backgroundGradient = theme.gradient;
+  if (isDay && (timeOfDay === 'Morning' || timeOfDay === 'Noon')) {
+    if (weather === 'Rainy') {
+      backgroundGradient = theme.rainGradient!;
+    } else if (weather === 'Stormy') {
+      backgroundGradient = theme.stormGradient!;
+    }
+  }
+
   const skyStyle = {
-    background: theme.gradient,
+    background: backgroundGradient,
   };
 
   const celestialStyle = {

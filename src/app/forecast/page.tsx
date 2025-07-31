@@ -89,7 +89,7 @@ export default function ForecastPage() {
   return (
     <>
       <WeatherScape {...weatherAndTime} moonPhase={moonPhase} />
-      <main className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-8">
+      <main className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4">
         {renderContent()}
       </main>
        <div className="fixed bottom-4 right-4 z-20 flex gap-2">
