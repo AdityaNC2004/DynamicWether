@@ -37,12 +37,14 @@ cd dynamic-weather
 npm install
 
 # Add your environment variables
-touch .env.local
+touch .env
 
-Example .env.local:
+Example .env:
 
+GEMINI_API_KEY=your_api_key_here
 NEXT_PUBLIC_WEATHER_API_KEY=your_api_key_here
-NEXT_PUBLIC_WEATHER_API_URL=https://api.openweathermap.org/data/2.5
+
+To get free Wether API: https://www.weatherapi.com
 
 # Run the dev server
 npm run dev
@@ -72,12 +74,3 @@ Deployed on Vercel. Push to main branch triggers auto-deploy.
 MIT License © 2025 Aditya Chavan
 
 ---
-
-## ✅ Next Steps:
-1. Save this as `README.md` in your project root.
-2. Replace `"your-username"` and `"your_api_key_here"` as needed.
-3. Push to GitHub:
-```bash
-git add README.md
-git commit -m "Add README"
-git push
